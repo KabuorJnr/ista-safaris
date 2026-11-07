@@ -10,8 +10,8 @@ This file is the hand-over record. Anyone (or any Claude Code account) continuin
 | Phase status | Built; one check outstanding (app on emulator) |
 | Working branch | `phase-0-setup` (pushed; CI green) |
 | Last phase signed off | None |
-| Next step | Run the app on the `Medium_Phone_API_36.1` emulator once disk space is freed, then ask the owner to sign off Phase 0. After sign-off: merge `phase-0-setup` into `main`, branch `phase-1-design-system`, and propose the Phase 1 file tree. |
-| Waiting on the owner | Free disk space on C: (emulator refused to start with 206 MB free); Phase 0 sign-off |
+| Next step | On the new machine: do the setup in "Continuing on a new machine" below, run the app on an emulator or phone (the only Phase 0 check not yet done), then ask the owner to sign off Phase 0. After sign-off: merge `phase-0-setup` into `main`, branch `phase-1-design-system`, and propose the Phase 1 file tree before writing code. |
+| Waiting on the owner | Phase 0 sign-off. (The first machine ran out of disk space for the emulator; development moved to a new machine on 2026-11-07, so that blocker no longer applies.) |
 
 ### Phase checklist (section 8 of `CLAUDE.md`)
 
@@ -30,6 +30,23 @@ This file is the hand-over record. Anyone (or any Claude Code account) continuin
 - App: `cd mobile && flutter pub get && flutter run` (Android emulator or device). Checks: `flutter analyze` and `flutter test`.
 - Backend: `cd backend && python -m venv .venv && .venv/Scripts/activate` (Windows) or `source .venv/bin/activate`, then `pip install -r requirements.txt`, `cp .env.example .env`, `python manage.py migrate`, `python manage.py runserver`. Tests: `python manage.py test`.
 - CI: `.github/workflows/ci.yml` runs both on every push and pull request.
+
+## Continuing on a new machine
+
+Development moved from the first Windows machine to another machine and another Claude account. Memory and chat history do not carry over; this file and `CLAUDE.md` are the only hand-over. Things to watch for:
+
+1. **Check out the right branch.** All Phase 0 work is on `phase-0-setup`; `main` only has the docs and web reference. Run `git checkout phase-0-setup`.
+2. **Repo access.** The repo is private under `KabuorJnr`. The other account needs collaborator access (or a fork) to push, and `gh auth login` on the new machine.
+3. **Secrets are not in git.** Create `backend/.env` from `backend/.env.example` with a fresh `SECRET_KEY` (`python -c "import secrets;print(secrets.token_urlsafe(50))"`). Create `mobile/dart_defines.json` from `dart_defines.example.json`. The old `.venv` is not in git either: recreate it and run `pip install -r requirements.txt`.
+4. **Toolchain.** Flutter 3.47.9 stable (Dart 3.13.7), Python 3.13, JDK 17, Android SDK with platform 36 and an emulator image. Run `flutter doctor` and `flutter doctor --android-licenses`. On Windows, `flutter upgrade` once left an empty `bin/cache/dart-sdk`; if that happens, delete `bin/cache` contents and run `flutter --version`.
+5. **Database.** `DATABASE_URL` unset falls back to SQLite for local work. CI and production use PostgreSQL; before Phase 3 work, test against Postgres (CI already does).
+6. **Android emulator reaches the host at `10.0.2.2`**, which is why `ALLOWED_HOSTS` and `API_BASE_URL` use it. A real phone needs the machine's LAN address instead.
+7. **Line endings are LF** (`.gitattributes`). Do not let the editor convert to CRLF.
+8. **Do not repeat settled questions.** See **Decisions**. Still open: map tiles, routing, weather plan, hosting, email, photos and audio rights, safety approver, legal text.
+9. **Work rules still apply.** Propose the file tree and wait for approval at the start of each phase; get explicit sign-off at the end; one branch per phase; no invented content; no secrets committed. Update **Current state** in the same commit as any change of step.
+10. **Commit attribution** comes from whichever account is running; it does not need to match earlier commits.
+11. **Reference assets are placeholders.** Photos and the logo in `reference/web/public/` are low-resolution screen captures. Do not bundle them in the app except the logo, until the originals arrive (Phase 6).
+12. **Sign-off record.** Phase 0 was not yet signed off when the machine changed. Confirm with the owner before starting Phase 1.
 
 ## Decisions
 
