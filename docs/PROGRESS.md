@@ -7,11 +7,11 @@ This file is the hand-over record. Anyone (or any Claude Code account) continuin
 | Item | Value |
 | --- | --- |
 | Active phase | Phase 0: Setup |
-| Phase status | In progress |
-| Working branch | `phase-0-setup` |
+| Phase status | Built; one check outstanding (app on emulator) |
+| Working branch | `phase-0-setup` (pushed; CI green) |
 | Last phase signed off | None |
-| Next step | Finish Phase 0 checks, then report to the owner for sign-off |
-| Waiting on the owner | Phase 0 sign-off once CI is green |
+| Next step | Run the app on the `Medium_Phone_API_36.1` emulator once disk space is freed, then ask the owner to sign off Phase 0. After sign-off: merge `phase-0-setup` into `main`, branch `phase-1-design-system`, and propose the Phase 1 file tree. |
+| Waiting on the owner | Free disk space on C: (emulator refused to start with 206 MB free); Phase 0 sign-off |
 
 ### Phase checklist (section 8 of `CLAUDE.md`)
 
@@ -78,4 +78,10 @@ Record every labelled placeholder here and remove the row when it is replaced.
 ### Phase 0: Setup (started 2026-11-07)
 
 - Moved the web design to `reference/web/`, the budget to `docs/budget/`, the note to `CLAUDE.md`. The original PDF of the note is in `docs/`.
+- Flutter upgraded to 3.47.9 stable (Dart 3.13.7). The first `flutter upgrade` left an empty `dart-sdk` cache on Windows; fixed by clearing `bin/cache` and re-running `flutter --version`.
+- `mobile/`: `flutter create --platforms android`, application ID and namespace `com.istasafaris.app`, `compileSdk 36`, `targetSdk 36`, `minSdk 24`, label "ISTA Safaris". Placeholder home screen and one widget test. `dart_defines.example.json` for `--dart-define-from-file`.
+- `backend/`: Django 6.1.3 project `config` with apps `accounts`, `content`, `packs`, `api` (empty until Phase 3). Settings from `.env` via django-environ; PostgreSQL through `DATABASE_URL` (SQLite fallback for local skeleton only). DRF with simplejwt auth, drf-spectacular schema at `/api/v1/schema/` and docs at `/api/v1/docs/`, `GET /api/v1/health`. Three tests.
+- CI: GitHub Actions runs `flutter analyze`, `flutter test`, Django `check`, migration check and tests against PostgreSQL 16.
+- Checks run locally: `flutter analyze` clean, `flutter test` 1 passed, Django tests 3 passed, `runserver` answers `/api/v1/health`. CI green on GitHub.
+- Not yet checked: app running on an emulator. The AVD would not start because drive C: had only 206 MB free.
 - Deviations from the design: none yet.
